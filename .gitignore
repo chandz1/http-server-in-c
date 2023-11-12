@@ -54,3 +54,4 @@ dkms.conf
 # Custom Files
 server
 client
+.clang-format
