@@ -11,12 +11,14 @@
 #include <unistd.h>
 
 #define PORT "8080"
+#define MAXBUFSIZE 8192
 
 int main(int argc, char *argv[]) {
     int server_fd, client_fd, status;
     struct addrinfo hints, *res, *p;
     struct sockaddr_storage client;
     socklen_t client_len;
+    char buf[MAXBUFSIZE];
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -63,11 +65,10 @@ int main(int argc, char *argv[]) {
 
     printf("accepted\n");
 
-    size_t buf_size = 4096;
-    char buf[buf_size];
-    recv(client_fd, buf, buf_size, 0);
+    memset(buf, 0, MAXBUFSIZE);
+    recv(client_fd, buf, MAXBUFSIZE - 1, 0);
 
-    buf[buf_size] = '\0';
+    buf[MAXBUFSIZE - 1] = '\0';
     printf("%s\n", buf);
 
     freeaddrinfo(res);
