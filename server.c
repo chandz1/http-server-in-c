@@ -1,3 +1,4 @@
+#include "server.h"
 #include "response.h"
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
@@ -12,15 +13,69 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define PORT "8080"
-#define MAXBUFSIZE 8192
-
 int main(int argc, char *argv[]) {
-    int server_fd, client_fd, status;
-    struct addrinfo hints, *res, *p;
+    char buf[MAXBUFSIZE];
+
+    int server_fd = server_setup();
+
+    while (1) {
+
+        int client_fd = accept_connection(server_fd);
+
+        memset(buf, 0, MAXBUFSIZE);
+        recv(client_fd, buf, MAXBUFSIZE - 1, 0);
+
+        buf[MAXBUFSIZE - 1] = '\0';
+
+        printf("%s\n", buf);
+
+        RequestQueue *http_req = parse_request(buf);
+
+        memset(buf, 0, MAXBUFSIZE);
+        if (strncmp(http_req->method, "GET", 3)) {
+        }
+        int fd = open("index.html", O_RDONLY);
+        size_t file_size = lseek(fd, 0, SEEK_END);
+        lseek(fd, 0, SEEK_SET);
+        snprintf(buf, MAXBUFSIZE,
+                 "HTTP/1.1 200 OK\r\n"
+                 "Content-Type: text/html\r\n"
+                 "\r\n");
+        size_t len = strnlen(buf, MAXBUFSIZE);
+        read(fd, buf + len, file_size);
+        len = strnlen(buf, MAXBUFSIZE);
+        printf("%s\n", buf);
+        send(client_fd, buf, len, 0);
+        close(client_fd);
+    }
+
+    return 0;
+}
+
+int accept_connection(int server_fd) {
+    int client_fd;
     struct sockaddr_storage client;
     socklen_t client_len;
-    char buf[MAXBUFSIZE];
+    char client_ip[INET_ADDRSTRLEN];
+
+    client_len = (sizeof(client));
+    client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
+    if (client_fd == -1) {
+        perror("accept error");
+        exit(1);
+    }
+
+    inet_ntop(client.ss_family,
+              &(((struct sockaddr_in *)((struct sockaddr *)&client))->sin_addr),
+              client_ip, sizeof client_ip);
+
+    printf("[*] Connected to client on IP: %s\n", client_ip);
+    return client_fd;
+}
+
+int server_setup() {
+    int server_fd, status;
+    struct addrinfo hints, *res, *p;
 
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_INET;
@@ -62,52 +117,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    if (listen(server_fd, 20) == -1) {
+    if (listen(server_fd, BACKLOG) == -1) {
         perror("listen error");
         exit(1);
     }
 
-    client_len = (sizeof(client));
-    client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
-    if (client_fd == -1) {
-        perror("accept error");
-        exit(1);
-    }
-
-    char client_ip[INET_ADDRSTRLEN];
-    inet_ntop(client.ss_family,
-              &(((struct sockaddr_in *)((struct sockaddr *)&client))->sin_addr),
-              client_ip, sizeof client_ip);
-
-    printf("[*] Connected to client on IP: %s\n", client_ip);
-
-    memset(buf, 0, MAXBUFSIZE);
-    recv(client_fd, buf, MAXBUFSIZE - 1, 0);
-
-    buf[MAXBUFSIZE - 1] = '\0';
-
-    printf("%s\n", buf);
-
-    RequestQueue *http_req = parse_request(buf);
-    printf("[*] Recieved %s request.\n", http_req->method);
-    printf("[*] Recieved request for path: %s\n", http_req->filepath);
-    printf("[*] Recieved request for protocol: %s\n", http_req->protocol);
-
-    memset(buf, 0, MAXBUFSIZE);
-    if (strncmp(http_req->method, "GET", 3)) {
-        int fd = open("index.html", O_RDONLY);
-        size_t file_size = lseek(fd, 0, SEEK_END);
-        lseek(fd, 0, SEEK_SET);
-        snprintf(buf, MAXBUFSIZE,
-                 "HTTP/1.1 200 OK\r\n"
-                 "Content-Type: text/html\r\n"
-                 "\r\n");
-        size_t len = strnlen(buf, MAXBUFSIZE);
-        read(fd, buf + len, file_size);
-        len = strnlen(buf, MAXBUFSIZE);
-        printf("%s\n", buf);
-        send(client_fd, buf, len, 0);
-    }
-
-    return 0;
+    return server_fd;
 }

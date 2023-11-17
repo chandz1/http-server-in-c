@@ -15,5 +15,8 @@ RequestQueue *parse_request(char *request_str) {
         http_req->protocol = strtok_r(NULL, " ", &save_ptr);
         break;
     }
+    printf("[*] Recieved %s request.\n", http_req->method);
+    printf("[*] Recieved request for path: %s\n", http_req->filepath);
+    printf("[*] Recieved request for protocol: %s\n", http_req->protocol);
     return http_req;
 }
