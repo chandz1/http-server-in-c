@@ -1,6 +1,7 @@
 #include "response.h"
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stddef.h>
@@ -85,10 +86,28 @@ int main(int argc, char *argv[]) {
 
     buf[MAXBUFSIZE - 1] = '\0';
 
+    printf("%s\n", buf);
+
     RequestQueue *http_req = parse_request(buf);
     printf("[*] Recieved %s request.\n", http_req->method);
     printf("[*] Recieved request for path: %s\n", http_req->filepath);
     printf("[*] Recieved request for protocol: %s\n", http_req->protocol);
+
+    memset(buf, 0, MAXBUFSIZE);
+    if (strncmp(http_req->method, "GET", 3)) {
+        int fd = open("index.html", O_RDONLY);
+        size_t file_size = lseek(fd, 0, SEEK_END);
+        lseek(fd, 0, SEEK_SET);
+        snprintf(buf, MAXBUFSIZE,
+                 "HTTP/1.1 200 OK\r\n"
+                 "Content-Type: text/html\r\n"
+                 "\r\n");
+        size_t len = strnlen(buf, MAXBUFSIZE);
+        read(fd, buf + len, file_size);
+        len = strnlen(buf, MAXBUFSIZE);
+        printf("%s\n", buf);
+        send(client_fd, buf, len, 0);
+    }
 
     return 0;
 }

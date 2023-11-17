@@ -56,3 +56,4 @@ server
 client
 .clang-format
 Session.vim
+*.html
