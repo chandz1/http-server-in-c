@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 
     buf[MAXBUFSIZE - 1] = '\0';
 
-    request *http_req = parse_request(buf);
+    RequestQueue *http_req = parse_request(buf);
     printf("[*] Recieved %s request.\n", http_req->method);
     printf("[*] Recieved request for path: %s\n", http_req->filepath);
     printf("[*] Recieved request for protocol: %s\n", http_req->protocol);

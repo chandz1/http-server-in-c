@@ -1,8 +1,9 @@
 // Struct to store http request header info
-typedef struct http_request {
+typedef struct RequestQueue {
     char *method;
     char *filepath;
     char *protocol;
-} request;
+    struct RequestQueue *next;
+} RequestQueue;
 
-request *parse_request(char *request_str);
+RequestQueue *parse_request(char *request_str);
