@@ -6,4 +6,7 @@ typedef struct RequestQueue {
     struct RequestQueue *next;
 } RequestQueue;
 
-RequestQueue *parse_request(char *request_str);
+void parse_request(char *request_str);
+void initialize(RequestQueue *http_req);
+void enqueue(RequestQueue *http_req);
+RequestQueue *deque();

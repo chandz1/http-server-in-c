@@ -27,8 +27,9 @@ int main(int argc, char *argv[]) {
         buf[MAXBUFSIZE - 1] = '\0';
         printf("\n%s", buf);
 
-        RequestQueue *http_req = parse_request(buf);
+        parse_request(buf);
         memset(buf, 0, MAXBUFSIZE);
+        RequestQueue *http_req = deque();
         if (strncmp(http_req->method, "GET", 3)) {
         }
         int fd = open("index.html", O_RDONLY);
