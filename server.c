@@ -24,13 +24,10 @@ int main(int argc, char *argv[]) {
 
         memset(buf, 0, MAXBUFSIZE);
         recv(client_fd, buf, MAXBUFSIZE - 1, 0);
-
         buf[MAXBUFSIZE - 1] = '\0';
-
-        printf("%s\n", buf);
+        printf("\n%s", buf);
 
         RequestQueue *http_req = parse_request(buf);
-
         memset(buf, 0, MAXBUFSIZE);
         if (strncmp(http_req->method, "GET", 3)) {
         }
@@ -50,27 +47,6 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
-}
-
-int accept_connection(int server_fd) {
-    int client_fd;
-    struct sockaddr_storage client;
-    socklen_t client_len;
-    char client_ip[INET_ADDRSTRLEN];
-
-    client_len = (sizeof(client));
-    client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
-    if (client_fd == -1) {
-        perror("accept error");
-        exit(1);
-    }
-
-    inet_ntop(client.ss_family,
-              &(((struct sockaddr_in *)((struct sockaddr *)&client))->sin_addr),
-              client_ip, sizeof client_ip);
-
-    printf("[*] Connected to client on IP: %s\n", client_ip);
-    return client_fd;
 }
 
 int server_setup() {
@@ -123,4 +99,25 @@ int server_setup() {
     }
 
     return server_fd;
+}
+
+int accept_connection(int server_fd) {
+    int client_fd;
+    struct sockaddr_storage client;
+    socklen_t client_len;
+    char client_ip[INET_ADDRSTRLEN];
+
+    client_len = (sizeof(client));
+    client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
+    if (client_fd == -1) {
+        perror("accept error");
+        exit(1);
+    }
+
+    inet_ntop(client.ss_family,
+              &(((struct sockaddr_in *)((struct sockaddr *)&client))->sin_addr),
+              client_ip, sizeof client_ip);
+
+    printf("[*] Connected to client on IP: %s\n", client_ip);
+    return client_fd;
 }
