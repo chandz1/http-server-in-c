@@ -1,6 +1,9 @@
 // Struct to store http request header info
+
+typedef enum { GET, POST, PUT } Method;
+
 typedef struct RequestQueue {
-    char *method;
+    Method method;
     char *filepath;
     char *protocol;
     struct RequestQueue *next;

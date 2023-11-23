@@ -8,5 +8,6 @@
 int main(int argc, char *argv[]);
 int server_setup();
 int accept_connection(int server_fd);
+int recieve_request(int client_fd);
 
 #endif // _SERVER_H

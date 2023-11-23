@@ -15,6 +15,7 @@
 
 int main(int argc, char *argv[]) {
     char buf[MAXBUFSIZE];
+    char path[1024];
 
     int server_fd = server_setup();
 
@@ -22,16 +23,14 @@ int main(int argc, char *argv[]) {
 
         int client_fd = accept_connection(server_fd);
 
-        memset(buf, 0, MAXBUFSIZE);
-        recv(client_fd, buf, MAXBUFSIZE - 1, 0);
-        buf[MAXBUFSIZE - 1] = '\0';
-        printf("\n%s", buf);
-
-        parse_request(buf);
+        recieve_request(client_fd);
         memset(buf, 0, MAXBUFSIZE);
         RequestQueue *http_req = deque();
-        if (strncmp(http_req->method, "GET", 3)) {
+        if (http_req->method == GET) {
+            printf("GETTTTT\n");
         }
+        realpath("/", path);
+        printf("%s\n", path);
         int fd = open("index.html", O_RDONLY);
         size_t file_size = lseek(fd, 0, SEEK_END);
         lseek(fd, 0, SEEK_SET);
@@ -121,4 +120,18 @@ int accept_connection(int server_fd) {
 
     printf("[*] Connected to client on IP: %s\n", client_ip);
     return client_fd;
+}
+
+int recieve_request(int client_fd) {
+    char buf[MAXBUFSIZE];
+
+    if (recv(client_fd, buf, MAXBUFSIZE, 0) == -1) {
+        perror("recv error");
+        exit(1);
+    }
+
+    printf("\n%s", buf);
+    parse_request(buf);
+
+    return 0;
 }
