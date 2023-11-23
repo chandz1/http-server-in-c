@@ -32,12 +32,3 @@ int deque() {
     curr->next = NULL;
     return curr->data;
 }
-
-int main() {
-    enqueue(10);
-    enqueue(20);
-    enqueue(30);
-    printf("%d\n", deque());
-    printf("%d\n", deque());
-    printf("%d\n", deque());
-}
