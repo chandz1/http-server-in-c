@@ -29,9 +29,9 @@ int main(int argc, char *argv[]) {
         if (http_req->method == GET) {
             printf("GETTTTT\n");
         }
-        realpath("/", path);
+        realpath(http_req->filepath, path);
         printf("%s\n", path);
-        int fd = open("index.html", O_RDONLY);
+        int fd = open(http_req->filepath, O_RDONLY);
         size_t file_size = lseek(fd, 0, SEEK_END);
         lseek(fd, 0, SEEK_SET);
         snprintf(buf, MAXBUFSIZE,

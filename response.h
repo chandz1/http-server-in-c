@@ -6,10 +6,6 @@ typedef struct RequestQueue {
     Method method;
     char *filepath;
     char *protocol;
-    struct RequestQueue *next;
 } RequestQueue;
 
-void parse_request(char *request_str);
-void initialize(RequestQueue *http_req);
-void enqueue(RequestQueue *http_req);
-RequestQueue *deque();
+RequestQueue *parse_request(char *request_str);
