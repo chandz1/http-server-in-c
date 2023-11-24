@@ -1,5 +1,5 @@
 #include "server.h"
-#include "response.h"
+#include "queue-ll.h"
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <fcntl.h>
@@ -22,10 +22,14 @@ int main(int argc, char *argv[]) {
     while (1) {
 
         int client_fd = accept_connection(server_fd);
+        int *client = (int *)malloc(sizeof(client));
+        *client = client_fd;
+        printf("%d\n", *client);
+        enqueue(client);
+        printf("%d\n", *dequeue());
 
-        recieve_request(client_fd);
+        RequestQueue *http_req = handle_request(client_fd);
         memset(buf, 0, MAXBUFSIZE);
-        RequestQueue *http_req = deque();
         if (http_req->method == GET) {
             printf("GETTTTT\n");
         }
@@ -122,7 +126,7 @@ int accept_connection(int server_fd) {
     return client_fd;
 }
 
-int recieve_request(int client_fd) {
+RequestQueue *handle_request(int client_fd) {
     char buf[MAXBUFSIZE];
 
     if (recv(client_fd, buf, MAXBUFSIZE, 0) == -1) {
@@ -131,7 +135,7 @@ int recieve_request(int client_fd) {
     }
 
     printf("\n%s", buf);
-    parse_request(buf);
+    RequestQueue *http_req = parse_request(buf);
 
-    return 0;
+    return http_req;
 }

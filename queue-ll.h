@@ -2,13 +2,12 @@
 #define _QUEUE_LL_H
 
 typedef struct Queue {
-    int data;
+    int *data;
     struct Queue *next;
 } Queue;
 
 void initialize(Queue *curr);
-void enqueue(int data);
-int deque();
-int peek();
+void enqueue(int *data);
+int *dequeue();
 
 #endif // _QUEUE_LL_H

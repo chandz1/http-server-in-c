@@ -10,7 +10,7 @@ void initialize(Queue *curr) {
     front = rear = curr;
 }
 
-void enqueue(int data) {
+void enqueue(int *data) {
     Queue *curr = (Queue *)malloc(sizeof(Queue));
     curr->data = data;
 
@@ -22,13 +22,16 @@ void enqueue(int data) {
     rear = curr;
 }
 
-int deque() {
+int *dequeue() {
     if (front == NULL) {
-        return -1;
+        return NULL;
     }
-    Queue *curr = (Queue *)malloc(sizeof(Queue));
+
+    int *data = front->data;
+    Queue *curr = NULL;
     curr = front;
     front = front->next;
-    curr->next = NULL;
-    return curr->data;
+    free(curr);
+
+    return data;
 }
