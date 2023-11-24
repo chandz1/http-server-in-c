@@ -1,13 +1,16 @@
 CC = clang
 CFLAGS = -Wall -g
-OBJS = response.o server.o
+OBJS = response.o queue-ll.o server.o
 
 all: $(OBJS) server
 
-server: server.o response.o
+server: server.o response.o queue-ll.o
 	$(CC) $(CFLAGS) $^ -o $@
 
 response.o: response.c response.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+queue-ll.o: queue-ll.c queue-ll.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 server.o: server.c
