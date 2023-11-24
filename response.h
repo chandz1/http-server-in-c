@@ -2,10 +2,10 @@
 
 typedef enum { GET, POST, PUT } Method;
 
-typedef struct RequestQueue {
+typedef struct HttpRequest {
     Method method;
     char *filepath;
     char *protocol;
-} RequestQueue;
+} Request;
 
-RequestQueue *parse_request(char *request_str);
+Request *parse_request(char *request_str);

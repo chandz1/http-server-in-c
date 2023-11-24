@@ -4,8 +4,8 @@
 #include <string.h>
 
 // Function to parse http RequestQueue
-RequestQueue *parse_request(char *request_str) {
-    RequestQueue *http_req = (RequestQueue *)malloc(sizeof(RequestQueue));
+Request *parse_request(char *request_str) {
+    Request *http_req = (Request *)malloc(sizeof(Request));
     char *request_line = NULL;
     while ((request_line = strtok_r(request_str, "\r\n", &request_str)) !=
            NULL) {

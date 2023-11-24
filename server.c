@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
         enqueue(client);
         printf("%d\n", *dequeue());
 
-        RequestQueue *http_req = handle_request(client_fd);
+        Request *http_req = handle_request(client_fd);
         memset(buf, 0, MAXBUFSIZE);
         if (http_req->method == GET) {
             printf("GETTTTT\n");
@@ -126,7 +126,7 @@ int accept_connection(int server_fd) {
     return client_fd;
 }
 
-RequestQueue *handle_request(int client_fd) {
+Request *handle_request(int client_fd) {
     char buf[MAXBUFSIZE];
 
     if (recv(client_fd, buf, MAXBUFSIZE, 0) == -1) {
@@ -135,7 +135,7 @@ RequestQueue *handle_request(int client_fd) {
     }
 
     printf("\n%s", buf);
-    RequestQueue *http_req = parse_request(buf);
+    Request *http_req = parse_request(buf);
 
     return http_req;
 }
