@@ -3,8 +3,6 @@
 #include <pthread.h>
 
 pthread_t thread_pool[POOL_SIZE];
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 
 void thread_pool_create() {
     for (int i = 0; i < POOL_SIZE; i++) {

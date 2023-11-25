@@ -9,7 +9,8 @@
 
 int main(int argc, char *argv[]);
 int server_setup();
-int accept_connection(int server_fd);
-Request *handle_request(int client_fd);
+int *accept_connection(int server_fd);
+Request *handle_request(int *client_fd_ptr);
+int send_response(Request *req);
 
 #endif // _SERVER_H
