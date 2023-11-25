@@ -1,5 +1,6 @@
 #include "server.h"
 #include "queue-ll.h"
+#include "threads.h"
 #include <arpa/inet.h>
 #include <asm-generic/socket.h>
 #include <fcntl.h>
@@ -136,4 +137,9 @@ Request *handle_request(int client_fd) {
     Request *http_req = parse_request(buf);
 
     return http_req;
+}
+
+void *thread_run() {
+    while (1) {
+    }
 }
