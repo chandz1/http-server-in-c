@@ -24,9 +24,7 @@ int main(int argc, char *argv[]) {
         int client_fd = accept_connection(server_fd);
         int *client = (int *)malloc(sizeof(client));
         *client = client_fd;
-        printf("%d\n", *client);
         enqueue(client);
-        printf("%d\n", *dequeue());
 
         Request *http_req = handle_request(client_fd);
         memset(buf, 0, MAXBUFSIZE);

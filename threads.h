@@ -1,0 +1,12 @@
+#if !defined(_THREADS_H)
+#define _THREADS_H
+
+#include <pthread.h>
+
+#define POOL_SIZE 8
+
+void *thread_run();
+void thread_pool_create();
+void thread_pool_join();
+
+#endif // _THREADS_H
