@@ -19,16 +19,13 @@ pthread_mutex_t mutex;
 pthread_cond_t cond;
 
 int main(int argc, char *argv[]) {
-    char buf[MAXBUFSIZE];
-    char path[1024];
 
     int server_fd = server_setup();
+    thread_pool_create();
 
     while (1) {
-
         enqueue(accept_connection(server_fd));
-
-        handle_request(client_fd);
+        pthread_cond_signal(&cond);
     }
 
     return 0;
@@ -109,7 +106,7 @@ int *accept_connection(int server_fd) {
     return client_fd_ptr;
 }
 
-Request *handle_request(int *client_fd_ptr) {
+int handle_request(int *client_fd_ptr) {
     char buf[MAXBUFSIZE];
     int client_fd = *client_fd_ptr;
     free(client_fd_ptr);
@@ -119,33 +116,50 @@ Request *handle_request(int *client_fd_ptr) {
         exit(1);
     }
 
-    printf("\n%s", buf);
+    // printf("\n%s", buf);
     Request *req = parse_request(buf);
-    send_response(req);
+    int status = send_response(req, client_fd);
 
-    return req;
+    return status;
 }
 
-int send_response(Request *req) {
+int send_response(Request *req, int client_fd) {
     char buf[MAXBUFSIZE];
+    char path[1024];
+
     if (req->method == GET) {
-        printf("GETTTTT\n");
+        realpath(req->filepath, path);
+        printf("%s\n", path);
+        FILE *file = fopen(req->filepath, "r");
+        if (file == NULL) {
+            perror("fopen error");
+            return -1;
+        }
+        if (strcmp(req->filepath, "index.html") == 0) {
+            snprintf(buf, MAXBUFSIZE,
+                     "HTTP/1.1 200 OK\r\n"
+                     "Content-Type: text/html\r\n"
+                     "\r\n");
+        } else {
+            snprintf(buf, MAXBUFSIZE,
+                     "HTTP/1.1 200 OK\r\n"
+                     "Content-Type: image/x-icon\r\n"
+                     "\r\n");
+        }
+        size_t len = strnlen(buf, MAXBUFSIZE);
+        send(client_fd, buf, len, 0);
+
+        memset(&buf, 0, sizeof(buf));
+        size_t bytesRead;
+        while ((bytesRead = fread(buf, 1, sizeof(buf), file)) > 0) {
+            send(client_fd, buf, bytesRead, 0);
+        }
+        printf("%s\n", buf);
+        fclose(file);
+        close(client_fd);
+        return 0;
     }
-    realpath(req->filepath, path);
-    printf("%s\n", path);
-    int fd = open(req->filepath, O_RDONLY);
-    size_t file_size = lseek(fd, 0, SEEK_END);
-    lseek(fd, 0, SEEK_SET);
-    snprintf(buf, MAXBUFSIZE,
-             "HTTP/1.1 200 OK\r\n"
-             "Content-Type: text/html\r\n"
-             "\r\n");
-    size_t len = strnlen(buf, MAXBUFSIZE);
-    read(fd, buf + len, file_size);
-    len = strnlen(buf, MAXBUFSIZE);
-    printf("%s\n", buf);
-    send(client_fd, buf, len, 0);
-    close(client_fd);
+    return -1;
 }
 
 void *thread_run() {
@@ -159,7 +173,8 @@ void *thread_run() {
         pthread_mutex_unlock(&mutex);
 
         if (client_fd != NULL) {
-            handle_request(client_fd);
+            int status = handle_request(client_fd);
+            printf("Status Code: %d\n", status);
         }
     }
 }
